@@ -1,0 +1,54 @@
+# Persona 5 - inherited capital, no prior investment experience, the money is
+# most of the client's financial assets.
+# Expected: CC01 (over-estimation), CC02 (low knowledge / high appetite),
+# CC09 (concentration) and CC11 (vulnerability) all bite.
+client_ref: EX-005
+adviser_ref: ADV-31
+assessed_at: "2026-03-05T16:45:00+00:00"
+answers:
+  A1: retail
+  A2: natural_person
+  A3: investment_advice
+  A4: 38
+  A5: employed_temporary
+  A6: dependants_1_2
+  A7: [recent_windfall, first_time_investor]
+
+  B0: advanced
+  B1: none
+  B2: [none]
+  B3: t_none
+  B4: v_na
+  B5: b
+  B6: a
+  B7: d
+  B8: d
+  B9: d
+  B10: d
+
+  C1: variable
+  C2: i_25_50k
+  C3: 210000
+  C4: 190000
+  C5: none
+  C6: p_40_60
+  C7: m_3_6
+  C8: small_late
+  C9: modest
+  C10: false
+  C11: l_30
+
+  D1: growth
+  D2: h_gt_10
+  D3: none
+  D4: none
+  D5: r_gt_9
+  D6: false
+
+  E1: p5
+  E2: buy_more
+  E3: d_35
+  E4: never_invested
+  E5: s4
+
+  F1: "no"

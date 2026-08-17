@@ -1,0 +1,53 @@
+# Persona 3 - strong appetite for risk, weak ability to bear loss.
+# Expected: CC03 (refer) and CC04 (cap); capacity binds; the recommendation is
+# withheld until the gap is discussed with the client.
+client_ref: EX-003
+adviser_ref: ADV-07
+assessed_at: "2026-03-03T14:00:00+00:00"
+answers:
+  A1: retail
+  A2: natural_person
+  A3: investment_advice
+  A4: 41
+  A5: self_employed
+  A6: dependants_3_plus
+  A7: [none]
+
+  B0: good
+  B1: general_secondary
+  B2: [ucits_funds, listed_equities, etfs_index]
+  B3: t_6_20
+  B4: v_5k_25k
+  B5: b
+  B6: a
+  B7: b
+  B8: d
+  B9: b
+  B10: d
+
+  C1: variable
+  C2: i_50_100k
+  C3: 60000
+  C4: 40000
+  C5: owned_mortgaged
+  C6: p_40_60
+  C7: m_lt_3
+  C8: small_late
+  C9: significant
+  C10: false
+  C11: l_15
+
+  D1: growth
+  D2: h_7_10
+  D3: none
+  D4: none
+  D5: r_gt_9
+  D6: false
+
+  E1: p5
+  E2: buy_more
+  E3: d_35
+  E4: added
+  E5: s5
+
+  F1: "no"

@@ -1,0 +1,360 @@
+# =============================================================================
+# Model portfolio universe and product-side constraints
+# -----------------------------------------------------------------------------
+# The product side of the assessment. ESMA GL7 (paras 71-75) requires firms to
+# understand the nature, features, costs and risks of what they recommend,
+# including sustainability factors, before matching. GL9 (paras 91-95) requires
+# a thorough assessment of alternatives on cost and complexity. GL8 para 89
+# requires diversification and concentration control.
+#
+# Every model portfolio therefore carries, explicitly:
+#   risk_band          - the client band it is suitable for
+#   sri                - PRIIPs summary risk indicator (1-7)
+#   stress_loss_pct    - plausible loss over 12 months in an adverse scenario
+#   min_horizon_years  - recommended minimum holding period
+#   complexity_tier    - the knowledge tier a client must reach to be eligible
+#   liquidity          - dealing frequency of the underlying holdings
+#   total_cost_bps     - ongoing costs and charges, Art. 24(4) MiFID II basis
+#   sustainability     - the Art. 2(7) profile of the variant
+# =============================================================================
+
+meta:
+  id: crp-portfolios
+  version: "1.0.0"
+  currency: EUR
+  cost_basis: "ongoing costs and charges per Art. 24(4) MiFID II, ex ante, bps p.a."
+  review: "quarterly by the Investment Committee; ad hoc on material change (ESMA GL7 para 75)"
+
+# -----------------------------------------------------------------------------
+# Band definitions - the client-facing meaning of each risk band
+# -----------------------------------------------------------------------------
+risk_bands:
+  0:
+    label: "No investment portfolio suitable"
+    description: >-
+      The client cannot absorb any permanent loss of the amount concerned, or a
+      blocking control is unresolved. No model portfolio may be recommended.
+      Art. 54(8) DR 2017/565 applies where the reason is missing information.
+  1:
+    label: "Capital preservation"
+    stress_loss_pct: 3
+  2:
+    label: "Conservative"
+    stress_loss_pct: 8
+  3:
+    label: "Balanced"
+    stress_loss_pct: 15
+  4:
+    label: "Growth"
+    stress_loss_pct: 28
+  5:
+    label: "Aggressive growth"
+    stress_loss_pct: 40
+
+# -----------------------------------------------------------------------------
+# Complexity tiers - the product-side counterpart of the knowledge gate
+# -----------------------------------------------------------------------------
+complexity_tiers:
+  0: "Deposits, money-market funds, short-dated sovereign debt"
+  1: "Plain UCITS bond and multi-asset funds, investment-grade credit"
+  2: "Listed equity, physically replicating index funds and ETFs"
+  3: "High yield, emerging markets, structured products, synthetic replication"
+  4: "Illiquid alternatives, private markets, derivatives, leverage"
+
+# -----------------------------------------------------------------------------
+# Model portfolios
+# Three sustainability variants per risk band (GL2 para 29: model portfolios
+# must not force clients into a predetermined combination of preferences).
+# -----------------------------------------------------------------------------
+portfolios:
+
+  # --- Band 1 -----------------------------------------------------------------
+  - id: MP1-CORE
+    name: "Capital Preservation - Core"
+    risk_band: 1
+    sri: 2
+    stress_loss_pct: 3
+    min_horizon_years: 1
+    complexity_tier: 0
+    liquidity: daily
+    total_cost_bps: 28
+    allocation: {cash_and_mmf: 40, short_dated_govt: 45, ig_credit: 15, equity: 0}
+    sustainability: {has_features: false, taxonomy_min: 0.00, sfdr_sustainable_min: 0.00, pai_considered: false}
+
+  - id: MP1-PAI
+    name: "Capital Preservation - PAI aware"
+    risk_band: 1
+    sri: 2
+    stress_loss_pct: 3
+    min_horizon_years: 1
+    complexity_tier: 0
+    liquidity: daily
+    total_cost_bps: 32
+    allocation: {cash_and_mmf: 40, short_dated_govt: 45, ig_credit: 15, equity: 0}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.00
+      sfdr_sustainable_min: 0.00
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  - id: MP1-SUS
+    name: "Capital Preservation - Sustainable"
+    risk_band: 1
+    sri: 2
+    stress_loss_pct: 3
+    min_horizon_years: 1
+    complexity_tier: 1
+    liquidity: daily
+    total_cost_bps: 39
+    allocation: {cash_and_mmf: 30, short_dated_govt: 40, ig_credit: 30, equity: 0}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.10
+      sfdr_sustainable_min: 0.35
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  # --- Band 2 -----------------------------------------------------------------
+  - id: MP2-CORE
+    name: "Conservative - Core"
+    risk_band: 2
+    sri: 3
+    stress_loss_pct: 8
+    min_horizon_years: 3
+    complexity_tier: 1
+    liquidity: daily
+    total_cost_bps: 35
+    allocation: {cash_and_mmf: 10, govt_bonds: 40, ig_credit: 30, equity: 20, alternatives: 0}
+    sustainability: {has_features: false, taxonomy_min: 0.00, sfdr_sustainable_min: 0.00, pai_considered: false}
+
+  - id: MP2-PAI
+    name: "Conservative - PAI aware"
+    risk_band: 2
+    sri: 3
+    stress_loss_pct: 8
+    min_horizon_years: 3
+    complexity_tier: 1
+    liquidity: daily
+    total_cost_bps: 40
+    allocation: {cash_and_mmf: 10, govt_bonds: 40, ig_credit: 30, equity: 20, alternatives: 0}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.00
+      sfdr_sustainable_min: 0.05
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  - id: MP2-SUS
+    name: "Conservative - Sustainable"
+    risk_band: 2
+    sri: 3
+    stress_loss_pct: 8
+    min_horizon_years: 3
+    complexity_tier: 1
+    liquidity: daily
+    total_cost_bps: 48
+    allocation: {cash_and_mmf: 8, govt_bonds: 37, ig_credit: 33, equity: 22, alternatives: 0}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.15
+      sfdr_sustainable_min: 0.50
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  # --- Band 3 -----------------------------------------------------------------
+  - id: MP3-CORE
+    name: "Balanced - Core"
+    risk_band: 3
+    sri: 4
+    stress_loss_pct: 15
+    min_horizon_years: 5
+    complexity_tier: 2
+    liquidity: daily
+    total_cost_bps: 42
+    allocation: {cash_and_mmf: 5, govt_bonds: 22, ig_credit: 23, equity: 45, alternatives: 5}
+    sustainability: {has_features: false, taxonomy_min: 0.00, sfdr_sustainable_min: 0.00, pai_considered: false}
+
+  - id: MP3-PAI
+    name: "Balanced - PAI aware"
+    risk_band: 3
+    sri: 4
+    stress_loss_pct: 15
+    min_horizon_years: 5
+    complexity_tier: 2
+    liquidity: daily
+    total_cost_bps: 47
+    allocation: {cash_and_mmf: 5, govt_bonds: 22, ig_credit: 23, equity: 45, alternatives: 5}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.02
+      sfdr_sustainable_min: 0.10
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  - id: MP3-SUS
+    name: "Balanced - Sustainable"
+    risk_band: 3
+    sri: 4
+    stress_loss_pct: 15
+    min_horizon_years: 5
+    complexity_tier: 2
+    liquidity: daily
+    total_cost_bps: 58
+    allocation: {cash_and_mmf: 4, govt_bonds: 20, ig_credit: 24, equity: 47, alternatives: 5}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.20
+      sfdr_sustainable_min: 0.55
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  # --- Band 4 -----------------------------------------------------------------
+  - id: MP4-CORE
+    name: "Growth - Core"
+    risk_band: 4
+    sri: 5
+    stress_loss_pct: 28
+    min_horizon_years: 7
+    complexity_tier: 2
+    liquidity: daily
+    total_cost_bps: 46
+    allocation: {cash_and_mmf: 2, govt_bonds: 8, ig_credit: 10, equity: 73, alternatives: 7}
+    sustainability: {has_features: false, taxonomy_min: 0.00, sfdr_sustainable_min: 0.00, pai_considered: false}
+
+  - id: MP4-PAI
+    name: "Growth - PAI aware"
+    risk_band: 4
+    sri: 5
+    stress_loss_pct: 28
+    min_horizon_years: 7
+    complexity_tier: 2
+    liquidity: daily
+    total_cost_bps: 52
+    allocation: {cash_and_mmf: 2, govt_bonds: 8, ig_credit: 10, equity: 73, alternatives: 7}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.03
+      sfdr_sustainable_min: 0.12
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  - id: MP4-SUS
+    name: "Growth - Sustainable"
+    risk_band: 4
+    sri: 5
+    stress_loss_pct: 28
+    min_horizon_years: 7
+    complexity_tier: 3
+    liquidity: daily
+    total_cost_bps: 64
+    allocation: {cash_and_mmf: 2, govt_bonds: 6, ig_credit: 10, equity: 75, alternatives: 7}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.25
+      sfdr_sustainable_min: 0.60
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  # --- Band 5 -----------------------------------------------------------------
+  - id: MP5-CORE
+    name: "Aggressive Growth - Core"
+    risk_band: 5
+    sri: 6
+    stress_loss_pct: 40
+    min_horizon_years: 10
+    complexity_tier: 3
+    liquidity: daily
+    total_cost_bps: 51
+    allocation: {cash_and_mmf: 1, equity: 89, alternatives: 10}
+    sustainability: {has_features: false, taxonomy_min: 0.00, sfdr_sustainable_min: 0.00, pai_considered: false}
+
+  - id: MP5-PAI
+    name: "Aggressive Growth - PAI aware"
+    risk_band: 5
+    sri: 6
+    stress_loss_pct: 40
+    min_horizon_years: 10
+    complexity_tier: 3
+    liquidity: daily
+    total_cost_bps: 58
+    allocation: {cash_and_mmf: 1, equity: 89, alternatives: 10}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.03
+      sfdr_sustainable_min: 0.12
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+  - id: MP5-SUS
+    name: "Aggressive Growth - Sustainable"
+    risk_band: 5
+    sri: 6
+    stress_loss_pct: 40
+    min_horizon_years: 10
+    complexity_tier: 3
+    liquidity: daily
+    total_cost_bps: 72
+    allocation: {cash_and_mmf: 1, equity: 90, alternatives: 9}
+    sustainability:
+      has_features: true
+      taxonomy_min: 0.30
+      sfdr_sustainable_min: 0.65
+      pai_considered: true
+      pai_categories: [climate, social, human_rights, anti_corruption]
+
+# -----------------------------------------------------------------------------
+# Portfolio-construction constraints applied to every model
+# ESMA GL8 para 89 - diversification, concentration, credit risk, own-group
+# -----------------------------------------------------------------------------
+construction_constraints:
+  max_single_issuer_pct: 5
+  max_single_issuer_pct_sovereign_ig: 25
+  max_own_group_instruments_pct: 10
+  min_number_of_underlying_holdings: 60
+  max_illiquid_pct_by_band: {1: 0, 2: 0, 3: 5, 4: 10, 5: 15}
+  small_portfolio_threshold_eur: 25000
+  small_portfolio_rule: >-
+    Below the threshold, effective diversification cannot be achieved through
+    direct holdings; only pooled or "secured" instruments may be used
+    (ESMA GL8 para 89).
+
+# -----------------------------------------------------------------------------
+# Equivalent-product selection rule
+# ESMA GL9 paras 91-95; DR 2017/565 Art. 54(9)
+# -----------------------------------------------------------------------------
+equivalence_rule:
+  definition: >-
+    Two model portfolios are equivalent where they serve the same target market
+    and have a comparable risk/return profile - in this framework, the same
+    risk_band and the same sustainability classification.
+  selection: lowest_total_cost_then_lowest_complexity
+  justification_required_when: "a more costly or more complex equivalent is selected"
+  justification_grounds:
+    - portfolio diversification
+    - liquidity
+    - risk level
+  record: "reason, comparator considered, decision maker, timestamp"
+
+# -----------------------------------------------------------------------------
+# Switching test
+# DR 2017/565 Art. 54(11); ESMA GL10 paras 96-103
+# -----------------------------------------------------------------------------
+switching:
+  required_inputs:
+    - existing holdings, their costs and exit charges
+    - proposed holdings, their entry and ongoing costs
+    - expected net return over the client's remaining horizon
+    - change in client circumstances or product features
+  test: >-
+    The firm must be reasonably able to demonstrate that the expected benefits
+    of the switch are greater than its costs. Where the benefit is
+    non-financial (diversification, liquidity, credit-risk reduction, alignment
+    to a revised risk band) it must be stated and evidenced.
+  breakeven_horizon_cap_years: 3
+  rebalancing_exclusion: >-
+    Rebalancing within the tolerance bands of an agreed strategy is not a
+    switch. Any transaction outside those bands is (GL10 para 97).
+  anti_circumvention: >-
+    A sale and a related purchase advised within 30 days are assessed as one
+    switch (GL10 para 100).

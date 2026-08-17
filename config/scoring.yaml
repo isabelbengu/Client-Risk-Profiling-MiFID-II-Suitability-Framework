@@ -1,0 +1,375 @@
+# =============================================================================
+# Scoring, banding and coherence controls
+# -----------------------------------------------------------------------------
+# Two ideas govern this file.
+#
+# 1. NON-SUBSTITUTION. MiFID II Art. 25(2) requires a recommendation to be in
+#    accordance with the client's risk tolerance AND their ability to bear
+#    losses. These are separate tests. A high tolerance therefore cannot buy
+#    back a low capacity, and vice versa. The framework takes the binding
+#    (lowest) constraint rather than a weighted average across dimensions.
+#    ESMA GL6 para 70 makes the same point for groups of clients: taking "an
+#    average profile of the level of knowledge and competence of all of them,
+#    would unlikely be compliant with the MiFID II overarching principle of
+#    acting in the clients' best interests".
+#
+# 2. KNOWLEDGE IS A GATE, NOT A RISK INPUT. Knowledge and experience do not
+#    make a client able to bear a loss. Under Art. 54(2)(c) they determine
+#    whether the client can understand the risks involved. Knowledge is
+#    therefore mapped to a maximum product complexity tier and applied as a
+#    filter on the eligible universe, never added into the risk score.
+# =============================================================================
+
+meta:
+  id: crp-scoring
+  version: "1.0.0"
+  band_count: 5
+
+# -----------------------------------------------------------------------------
+# Dimension composition
+# -----------------------------------------------------------------------------
+dimensions:
+
+  knowledge:
+    label: Knowledge and experience
+    regulatory_basis: ["DR 2017/565 Art. 54(2)(c), Art. 55(1)"]
+    components:
+      comprehension:
+        weight: 0.40
+        questions: [B5, B6, B7, B8, B9, B10]
+        method: proportion_correct     # objective items, 0-100
+      instrument_experience:
+        weight: 0.30
+        questions: [B2]
+        method: sum_capped             # sum of option scores, capped at 100
+      activity:
+        weight: 0.15
+        questions: [B3, B4]
+        method: mean
+      background:
+        weight: 0.15
+        questions: [B1]
+        method: mean
+    # Objective comprehension ceiling: whatever the rest of the section says,
+    # the knowledge band may not exceed the band implied by the objective items.
+    # ESMA GL4 paras 46 and 52 - counterbalancing self-assessment.
+    comprehension_ceiling:
+      enabled: true
+      map:                             # correct answers out of 6 -> max band
+        0: 1
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 5
+
+  capacity:
+    label: Capacity for loss
+    regulatory_basis: ["MiFID II Art. 25(2); DR 2017/565 Art. 54(2)(b), 54(4)"]
+    components:
+      resilience:
+        weight: 0.30
+        questions: [C7, C9, C6]        # buffer, other debt, commitments ratio
+        method: mean
+      income_stability:
+        weight: 0.20
+        questions: [C1, C2]
+        method: mean
+      liquidity_needs:
+        weight: 0.20
+        questions: [C8]
+        method: mean
+      wealth_base:
+        weight: 0.10
+        questions: [C5]
+        method: mean
+      absorbable_loss:
+        weight: 0.20
+        questions: [C11]
+        method: mean
+    # Concentration overlay computed from C4 / C3.
+    # ESMA GL8 para 89 - diversification and concentration control.
+    concentration_overlay:
+      enabled: true
+      basis: {invested: C4, total_financial_assets: C3}
+      caps:                            # share of net financial assets -> max band
+        - {max_share: 0.25, max_band: 5}
+        - {max_share: 0.50, max_band: 5}
+        - {max_share: 0.75, max_band: 4}
+        - {max_share: 0.90, max_band: 3}
+        - {max_share: 1.01, max_band: 3}
+    # Absorbable-loss consistency: the recommended band's expected stress loss
+    # must not exceed the loss the client can absorb (C11).
+    stress_test:
+      enabled: true
+      source_question: C11
+      attribute: capacity_loss_pct
+
+  objective:
+    label: Investment objectives
+    regulatory_basis: ["DR 2017/565 Art. 54(2)(a), 54(5)"]
+    components:
+      purpose:
+        weight: 0.00                   # band taken directly from D1, not scored
+        questions: [D1]
+        method: mean
+      commitment:
+        weight: 0.50
+        questions: [D3]
+        method: mean
+      withdrawals:
+        weight: 0.50
+        questions: [D4]
+        method: mean
+    # The objective band is the band attached to the chosen purpose in D1,
+    # reduced by one where a fixed commitment date or withdrawals above 5% apply.
+    band_source:
+      question: D1
+      attribute: objective_band
+      reductions:
+        - {when: {D3: fixed_date}, minus: 1}
+        - {when: {D4: gt_5}, minus: 1}
+
+  tolerance:
+    label: Risk tolerance
+    regulatory_basis: ["MiFID II Art. 25(2); DR 2017/565 Art. 54(2)(a)"]
+    components:
+      revealed_behaviour:
+        weight: 0.30                   # redistributed if E4 = never_invested
+        questions: [E4]
+        method: mean
+      quantified_outcomes:
+        weight: 0.40
+        questions: [E1, E3]
+        method: mean
+      stated_reaction:
+        weight: 0.20
+        questions: [E2]
+        method: mean
+      attitude_statement:
+        weight: 0.10
+        questions: [E5]
+        method: mean
+    stress_test:
+      enabled: true
+      source_question: E3
+      attribute: tolerance_loss_pct
+
+  horizon:
+    label: Investment horizon
+    regulatory_basis: ["DR 2017/565 Art. 54(5)"]
+    band_source:
+      question: D2
+      attribute: horizon_band
+
+# -----------------------------------------------------------------------------
+# Score to band conversion (applies to scored dimensions)
+# -----------------------------------------------------------------------------
+bands:
+  - {band: 1, min_score: 0,  max_score: 19.999, label: "Very low"}
+  - {band: 2, min_score: 20, max_score: 39.999, label: "Low"}
+  - {band: 3, min_score: 40, max_score: 59.999, label: "Medium"}
+  - {band: 4, min_score: 60, max_score: 79.999, label: "Medium-high"}
+  - {band: 5, min_score: 80, max_score: 100,    label: "High"}
+
+# -----------------------------------------------------------------------------
+# Knowledge band -> maximum product complexity tier (the KYP gate)
+# DR 2017/565 Art. 54(2)(c); ESMA GL7 para 72 - match complexity to knowledge
+# -----------------------------------------------------------------------------
+complexity_gate:
+  1: 0        # non-complex, capital-stable instruments only
+  2: 1        # plain UCITS, investment-grade bonds
+  3: 2        # listed equity, index ETFs, diversified multi-asset
+  4: 3        # high yield, emerging markets, structured products
+  5: 4        # illiquid alternatives, derivatives, leverage
+
+# Professional clients: Art. 54(3) DR 2017/565 permits the firm to assume the
+# necessary knowledge and experience, and for per se professional clients under
+# Annex II Section I, the ability to bear related investment risks.
+professional_presumptions:
+  per_se_professional:
+    assume_knowledge: true
+    assume_ability_to_bear_losses: true
+    still_required: [objective, horizon]      # ESMA GL3 para 41
+  elective_professional:
+    assume_knowledge: true
+    assume_ability_to_bear_losses: false
+    still_required: [capacity, objective, horizon]
+  retail:
+    assume_knowledge: false
+    assume_ability_to_bear_losses: false
+    still_required: [knowledge, capacity, objective, tolerance, horizon]
+
+# -----------------------------------------------------------------------------
+# The combination rule
+# -----------------------------------------------------------------------------
+combination:
+  method: binding_constraint          # min() across the listed dimensions
+  inputs: [tolerance, capacity, objective, horizon]
+  rationale: >-
+    Art. 25(2) MiFID II requires the recommendation to be in accordance with
+    both the client's risk tolerance and their ability to bear losses; the two
+    are cumulative conditions, not offsetting scores. Averaging would allow a
+    high tolerance to mask a low capacity.
+  knowledge_treatment: complexity_gate_only
+
+# -----------------------------------------------------------------------------
+# Coherence controls
+# ESMA GL4 para 51 - firms should view the information collected as a whole, be
+#   alert to relevant contradictions, and contact the client to resolve material
+#   inconsistencies. This is the obligation.
+# ESMA GL4 para 49 - risk-profiling software "could include some controls of
+#   coherence of the replies provided by clients in order to highlight
+#   contradictions between different pieces of information collected". This is
+#   the mechanism, and these are those controls.
+# -----------------------------------------------------------------------------
+# severity:
+#   block        - no recommendation may be produced until resolved
+#   refer        - recommendation may be produced only after adviser sign-off,
+#                  documented, with the client contacted to resolve
+#   cap          - the profile is automatically capped and the client informed
+#   note         - recorded on the file, no automatic effect
+# -----------------------------------------------------------------------------
+coherence_controls:
+
+  - id: CC01
+    name: Knowledge over-estimation
+    severity: cap
+    basis: "ESMA GL4 paras 46, 52"
+    condition: "self_rating >= 4 and comprehension_correct <= 3"
+    effect: "knowledge band capped at the comprehension ceiling"
+    client_message: >-
+      Your answers to the worked examples suggest a different level of
+      familiarity from the one you selected. We have used the worked examples.
+
+  - id: CC02
+    name: Low knowledge with high risk appetite
+    severity: refer
+    basis: "ESMA GL4 para 51 (explicit example: little knowledge, aggressive risk attitude)"
+    condition: "knowledge_band <= 2 and tolerance_band >= 4"
+    effect: "recommendation withheld pending adviser discussion and re-confirmation"
+    client_message: >-
+      You told us you are comfortable with a high level of risk, but your answers to the worked examples suggest the risks involved may not yet be familiar. We want to talk this through with you before recommending anything.
+
+  - id: CC03
+    name: Tolerance materially exceeds capacity
+    severity: refer
+    basis: "MiFID II Art. 25(2); ESMA GL4 para 51"
+    condition: "tolerance_band - capacity_band >= 2"
+    effect: "capacity governs; the gap is explained to the client and recorded"
+    client_message: >-
+      What you are willing to risk and what your finances can absorb are two different things, and here they are some way apart. We have to work to the lower of the two.
+
+  - id: CC04
+    name: Stated loss tolerance exceeds absorbable loss
+    severity: cap
+    basis: "MiFID II Art. 25(2) - ability to bear losses"
+    condition: "tolerance_loss_pct > capacity_loss_pct"
+    effect: "risk band capped at the highest band whose stress loss <= capacity_loss_pct"
+    client_message: >-
+      The loss you told us you would accept is larger than the loss you told us you could absorb without changing your plans. We have used the amount you could absorb.
+
+  - id: CC05
+    name: Horizon inconsistent with objective
+    severity: cap
+    basis: "DR 2017/565 Art. 54(5)"
+    condition: "objective_band >= 4 and horizon_band <= 2"
+    effect: "horizon governs; long-term objective cannot be pursued over a short horizon"
+    client_message: >-
+      The objective you chose normally needs a longer holding period than the one you gave us. We have used your holding period.
+
+  - id: CC06
+    name: Liquidity need inside the horizon
+    severity: cap
+    basis: "ESMA GL3 para 37; GL8 para 80"
+    condition: "C8 in ['small_early','large_early'] and horizon_band >= 3"
+    effect: "effective horizon reduced to the earliest expected withdrawal"
+    client_message: >-
+      You expect to need some of this money within the first two years, so we have treated this as a short-term investment even though you gave a longer horizon.
+
+  - id: CC07
+    name: Return expectation not achievable at the accepted risk level
+    severity: refer
+    basis: "ESMA GL2 para 23; GL4 para 51"
+    condition: "expectation_band - final_band >= 2"
+    effect: "risk/return relationship re-explained and the answer re-taken"
+    client_message: >-
+      The return you are expecting is higher than the level of risk you have accepted can reasonably deliver. We would like to go through the relationship between the two with you again.
+
+  - id: CC08
+    name: No emergency reserve
+    severity: cap
+    basis: "ESMA GL8 para 80 - client must be able to finance the investment"
+    condition: "C7 == 'm_0'"
+    effect: "capacity band capped at 2"
+    client_message: >-
+      You have no cash set aside outside this investment. We think a reserve should come first, and we have limited the level of risk accordingly.
+
+  - id: CC09
+    name: Concentration in a single mandate
+    severity: cap
+    basis: "ESMA GL8 para 89"
+    condition: "invested_share_of_financial_assets > 0.50"
+    effect: "risk band capped per the concentration overlay"
+    client_message: >-
+      This investment is a large share of your financial assets. Concentrating that much in one strategy adds risk that is separate from the strategy itself, so we have limited the level of risk.
+
+  - id: CC10
+    name: Borrowing to invest
+    severity: block
+    basis: "ESMA GL8 para 80; GL3 para 36"
+    condition: "C10 == true"
+    effect: "no recommendation under this framework"
+    client_message: >-
+      We cannot advise on an investment funded by borrowing or by pledging other assets.
+
+  - id: CC11
+    name: Vulnerability overlay
+    severity: cap
+    basis: "ESMA GL3 para 40"
+    condition: "any of A7 in ['sole_income_source','first_time_investor'] or age >= 75"
+    effect: "risk band capped at 3 unless the adviser documents a reasoned override"
+    client_message: >-
+      Because of your circumstances we have taken a more cautious approach than your answers alone would suggest.
+
+  - id: CC12
+    name: Profile upgraded immediately before a recommendation
+    severity: refer
+    basis: "ESMA GL5 para 58"
+    condition: "profile_updated_within_days <= 5 and final_band increased vs previous"
+    effect: "flagged to compliance; rationale for the change must be recorded"
+    client_message: >-
+      Your profile changed shortly before this recommendation. We record why, so that neither of us is relying on a change made for the wrong reason.
+
+  - id: CC13
+    name: Incomplete necessary information
+    severity: block
+    basis: "DR 2017/565 Art. 54(8)"
+    condition: "any required question in the applicable set is unanswered"
+    effect: "no investment service or financial instrument may be recommended"
+    client_message: >-
+      We are missing information we need. Until we have it we are not permitted to recommend any investment service or financial instrument to you.
+
+  - id: CC14
+    name: Divergent profiles within a group
+    severity: cap
+    basis: "ESMA GL6 paras 69-70"
+    condition: "A2 in ['joint_group','represented'] and band spread across persons >= 2"
+    effect: >-
+      the most prudent profile governs (least knowledgeable, weakest financial
+      situation, most conservative objectives). Profiles are never averaged.
+    client_message: >-
+      Your answers differ from each other in ways that matter. We have used the more cautious of the two throughout, rather than splitting the difference.
+
+# -----------------------------------------------------------------------------
+# Overrides
+# -----------------------------------------------------------------------------
+overrides:
+  allowed: true
+  direction: down_only          # an adviser may make a profile more conservative
+  upward_requires:
+    - "documented client-supplied information that changes an answer"
+    - "second-line sign-off"
+    - "record of the reason (ESMA GL12 para 111)"
+  record_fields: [override_by, override_reason, prior_band, new_band, timestamp]

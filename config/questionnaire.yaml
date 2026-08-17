@@ -1,0 +1,638 @@
+# =============================================================================
+# Client Risk-Profiling Questionnaire
+# -----------------------------------------------------------------------------
+# Regulatory basis:
+#   - Directive 2014/65/EU (MiFID II), Article 25(2)
+#   - Commission Delegated Regulation (EU) 2017/565, Articles 54 and 55
+#     (as amended by Commission Delegated Regulation (EU) 2021/1253)
+#   - ESMA Guidelines on certain aspects of the MiFID II suitability
+#     requirements, ESMA35-43-3172 (3 April 2023), Guidelines 1-5
+#
+# Design rules applied throughout this file:
+#   * No question asks the client to self-certify suitability or to pick their
+#     own risk level as the operative input (ESMA GL1 para 14, GL4 para 46).
+#   * Self-declared knowledge is collected only as a cross-check against
+#     objective comprehension items (GL4 paras 46, 52).
+#   * Loss questions are expressed in monetary terms as well as percentages
+#     (GL4 para 48).
+#   * Sustainability preferences are collected as a separate block and are
+#     applied only after the Art. 25(2) assessment (GL8 para 81).
+# =============================================================================
+
+meta:
+  id: crp-questionnaire
+  version: "1.0.0"
+  effective_from: "2026-01-01"
+  language: en
+  applies_to_services:
+    - investment_advice
+    - portfolio_management
+    - investment_advice_portfolio_approach
+  client_categories:
+    - retail
+    - elective_professional
+    - per_se_professional
+  review_cycle_months: 12          # GL5 para 53-55
+  owner: "Suitability & Product Governance Committee"
+
+# -----------------------------------------------------------------------------
+# SECTION A - Client, mandate and circumstances (not scored)
+# Art. 54(6) DR 2017/565; ESMA GL2 para 24, GL6
+# -----------------------------------------------------------------------------
+sections:
+  - id: A
+    name: Client, mandate and personal circumstances
+    scored: false
+    regulatory_basis:
+      - "DR 2017/565 Art. 54(2), 54(6)"
+      - "ESMA GL2 para 24 (marital status, family situation, age, employment, liquidity needs)"
+      - "ESMA GL6 (legal entities and groups)"
+    questions:
+      - id: A1
+        text: "Client categorisation for this mandate."
+        type: single
+        required: true
+        options:
+          - {value: retail, label: "Retail client"}
+          - {value: elective_professional, label: "Elective professional client"}
+          - {value: per_se_professional, label: "Per se professional client"}
+
+      - id: A2
+        text: "Who is being assessed?"
+        type: single
+        required: true
+        help: >-
+          Where the client is a legal person or a group, the firm's policy under
+          ESMA GL6 determines whose knowledge, financial situation and objectives
+          are used. Profiles are never averaged (GL6 para 70).
+        options:
+          - {value: natural_person, label: "A single natural person"}
+          - {value: joint_group, label: "Two or more natural persons (no legal representative)"}
+          - {value: represented, label: "A natural person represented by another natural person"}
+          - {value: legal_person, label: "A legal person"}
+
+      - id: A3
+        text: "Service being provided."
+        type: single
+        required: true
+        options:
+          - {value: investment_advice, label: "Investment advice (instrument by instrument)"}
+          - {value: investment_advice_portfolio_approach, label: "Investment advice on a portfolio basis"}
+          - {value: portfolio_management, label: "Discretionary portfolio management"}
+
+      - id: A4
+        text: "Age of the client (or of the underlying client whose objectives govern)."
+        type: numeric
+        unit: years
+        required: true
+        min: 18
+        max: 110
+
+      - id: A5
+        text: "Employment situation."
+        type: single
+        required: true
+        options:
+          - {value: employed_permanent, label: "Employed, permanent contract"}
+          - {value: employed_temporary, label: "Employed, fixed-term or variable income"}
+          - {value: self_employed, label: "Self-employed / business owner"}
+          - {value: retired, label: "Retired"}
+          - {value: not_working, label: "Not currently working"}
+          - {value: student, label: "Student"}
+
+      - id: A6
+        text: "Marital status and financial dependants."
+        type: single
+        required: true
+        options:
+          - {value: single_no_dependants, label: "Single, no dependants"}
+          - {value: partnered_no_dependants, label: "Married / partnered, no dependants"}
+          - {value: dependants_1_2, label: "1-2 financial dependants"}
+          - {value: dependants_3_plus, label: "3 or more financial dependants"}
+
+      - id: A7
+        text: "Do any of the following apply?"
+        type: multi
+        required: true
+        help: >-
+          Indicators of client vulnerability trigger a more in-depth information
+          requirement and a prudence overlay (ESMA GL3 para 40).
+        options:
+          - {value: none, label: "None of the following"}
+          - {value: sole_income_source, label: "This portfolio is or will become the client's main source of income"}
+          - {value: near_retirement, label: "Retirement expected within 5 years"}
+          - {value: recent_windfall, label: "Assets arise from a one-off event (inheritance, sale of business, settlement)"}
+          - {value: first_time_investor, label: "First-time investor in financial instruments"}
+          - {value: language_or_comprehension, label: "Advice is not being given in the client's first language"}
+
+  # ---------------------------------------------------------------------------
+  # SECTION B - Knowledge and experience
+  # Art. 25(2) MiFID II; Art. 54(2)(c), 54(3) and Art. 55(1) DR 2017/565
+  # ESMA GL2 paras 30-31, GL4 paras 46, 52
+  # ---------------------------------------------------------------------------
+  - id: B
+    name: Knowledge and experience
+    scored: true
+    dimension: knowledge
+    regulatory_basis:
+      - "MiFID II Art. 25(2)"
+      - "DR 2017/565 Art. 54(2)(c); Art. 55(1)(a)-(c)"
+      - "ESMA GL2 paras 30-31; GL4 paras 46, 52"
+    questions:
+      - id: B0
+        text: "How would you describe your own knowledge of investing?"
+        type: single
+        required: true
+        scoring_role: cross_check_only
+        help: >-
+          Not used to compute the knowledge score. Retained solely to detect
+          over-estimation against the objective items B5-B10 (GL4 para 52).
+        options:
+          - {value: none, label: "None", self_rating: 1}
+          - {value: basic, label: "Basic", self_rating: 2}
+          - {value: good, label: "Good", self_rating: 3}
+          - {value: advanced, label: "Advanced", self_rating: 4}
+          - {value: professional, label: "Professional", self_rating: 5}
+
+      - id: B1
+        text: "Education and professional background relevant to financial markets."
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 55(1)(c)"]
+        options:
+          - {value: none, label: "No financial education or professional exposure", score: 0}
+          - {value: general_secondary, label: "General education, no financial specialisation", score: 20}
+          - {value: finance_studies, label: "Formal studies including finance or economics", score: 55}
+          - {value: finance_professional_past, label: "Worked in financial services (not current)", score: 80}
+          - {value: finance_professional_current, label: "Currently works in financial services in an investment role", score: 100}
+
+      - id: B2
+        text: "Which of the following have you personally invested in, and understood at the time?"
+        type: multi
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 55(1)(a)"]
+        help: "Each instrument carries a complexity tier used for the product gate."
+        options:
+          - {value: deposits_mmf, label: "Deposits and money-market funds", score: 10, tier: 0}
+          - {value: govt_ig_bonds, label: "Government and investment-grade corporate bonds", score: 20, tier: 1}
+          - {value: ucits_funds, label: "UCITS funds (equity, bond, multi-asset)", score: 20, tier: 1}
+          - {value: listed_equities, label: "Listed shares", score: 20, tier: 2}
+          - {value: etfs_index, label: "Physically replicating index ETFs", score: 15, tier: 2}
+          - {value: hy_em_bonds, label: "High-yield or emerging-market bonds", score: 25, tier: 3}
+          - {value: structured_products, label: "Structured products / certificates", score: 30, tier: 3}
+          - {value: aifs_illiquid, label: "Alternative funds, private markets, real-estate funds with limited liquidity", score: 30, tier: 4}
+          - {value: derivatives_leverage, label: "Derivatives, leveraged or inverse products", score: 35, tier: 4}
+          - {value: none, label: "None of the above", score: 0, tier: 0}
+
+      - id: B3
+        text: "Over the last three years, how many investment transactions have you carried out?"
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 55(1)(b)"]
+        options:
+          - {value: t_none, label: "None", score: 0}
+          - {value: t_1_5, label: "1-5 in total", score: 25}
+          - {value: t_6_20, label: "6-20 in total", score: 55}
+          - {value: t_21_50, label: "21-50 in total", score: 80}
+          - {value: t_50_plus, label: "More than 50", score: 100}
+
+      - id: B4
+        text: "Typical size of a single transaction over that period."
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 55(1)(b)"]
+        options:
+          - {value: v_na, label: "Not applicable - no transactions", score: 0}
+          - {value: v_lt_5k, label: "Under EUR 5,000", score: 30}
+          - {value: v_5k_25k, label: "EUR 5,000 - 25,000", score: 60}
+          - {value: v_25k_100k, label: "EUR 25,000 - 100,000", score: 85}
+          - {value: v_gt_100k, label: "Over EUR 100,000", score: 100}
+
+      - id: B5
+        text: >-
+          You invest EUR 10,000 in a fund. Over the year the fund falls by 20%.
+          Ignoring costs, what is your holding worth?
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "EUR 12,000", correct: false}
+          - {value: b, label: "EUR 8,000", correct: true}
+          - {value: c, label: "EUR 9,800", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+      - id: B6
+        text: "Which statement about risk and expected return is correct?"
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "An investment with a higher expected return generally exposes you to larger possible losses", correct: true}
+          - {value: b, label: "A higher expected return can be obtained without any increase in possible loss", correct: false}
+          - {value: c, label: "Expected return and risk are unrelated", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+      - id: B7
+        text: "What does diversification across many issuers mainly achieve?"
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "It guarantees a positive return", correct: false}
+          - {value: b, label: "It reduces the impact of any single issuer failing, but does not remove market risk", correct: true}
+          - {value: c, label: "It removes all risk of loss", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+      - id: B8
+        text: "If market interest rates rise, what typically happens to the price of a bond you already hold?"
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "It rises", correct: false}
+          - {value: b, label: "It falls", correct: true}
+          - {value: c, label: "It is unaffected", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+      - id: B9
+        text: "An investment uses leverage of 3x. The underlying market falls 10%. Broadly, what happens to your position?"
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "It falls by roughly 10%", correct: false}
+          - {value: b, label: "It falls by roughly 30%", correct: true}
+          - {value: c, label: "It is protected because leverage only amplifies gains", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+      - id: B10
+        text: >-
+          You hold a fund that allows redemptions only once a quarter with 90 days'
+          notice. You need the money next week. What is the position?
+        type: single
+        required: true
+        scoring_role: comprehension
+        options:
+          - {value: a, label: "The manager must pay me within a few days on request", correct: false}
+          - {value: b, label: "I may be unable to access the money, or may have to sell at a discount if a secondary market exists", correct: true}
+          - {value: c, label: "The regulator guarantees access to my money", correct: false}
+          - {value: d, label: "I do not know", correct: false}
+
+  # ---------------------------------------------------------------------------
+  # SECTION C - Financial situation and capacity for loss
+  # Art. 25(2) MiFID II ("ability to bear losses"); Art. 54(2)(b), 54(4)
+  # ESMA GL3 paras 37, 43
+  # ---------------------------------------------------------------------------
+  - id: C
+    name: Financial situation and capacity for loss
+    scored: true
+    dimension: capacity
+    regulatory_basis:
+      - "MiFID II Art. 25(2) - financial situation including ability to bear losses"
+      - "DR 2017/565 Art. 54(2)(b); Art. 54(4)"
+      - "ESMA GL3 paras 36-37, 42-43"
+    questions:
+      - id: C1
+        text: "Source and stability of your regular income."
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 54(4)"]
+        options:
+          - {value: no_income, label: "No regular income", score: 0}
+          - {value: variable, label: "Variable or irregular (commission, self-employment, seasonal)", score: 35}
+          - {value: pension, label: "Pension or annuity", score: 60}
+          - {value: stable_single, label: "Stable salary, single earner", score: 75}
+          - {value: stable_multi, label: "Stable salary, two or more earners in household", score: 100}
+
+      - id: C2
+        text: "Annual net household income."
+        type: single
+        required: true
+        options:
+          - {value: i_lt_25k, label: "Under EUR 25,000", score: 10}
+          - {value: i_25_50k, label: "EUR 25,000 - 50,000", score: 35}
+          - {value: i_50_100k, label: "EUR 50,000 - 100,000", score: 60}
+          - {value: i_100_250k, label: "EUR 100,000 - 250,000", score: 85}
+          - {value: i_gt_250k, label: "Over EUR 250,000", score: 100}
+
+      - id: C3
+        text: "Total net financial assets (cash, deposits, investments), excluding your main residence and pension entitlements."
+        type: numeric
+        unit: EUR
+        required: true
+        min: 0
+
+      - id: C4
+        text: "Amount to be invested under this mandate."
+        type: numeric
+        unit: EUR
+        required: true
+        min: 0
+
+      - id: C5
+        text: "Do you own real property, and is it mortgaged?"
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 54(4) - real property"]
+        options:
+          - {value: none, label: "No property owned", score: 25}
+          - {value: owned_mortgaged, label: "Main residence, mortgaged", score: 50}
+          - {value: owned_outright, label: "Main residence, owned outright", score: 80}
+          - {value: multiple, label: "More than one property", score: 100}
+
+      - id: C6
+        text: "Regular financial commitments (rent or mortgage, loans, maintenance, insurance) as a share of net income."
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 54(4) - regular financial commitments"]
+        options:
+          - {value: lt_20, label: "Less than 20%", score: 100}
+          - {value: p_20_40, label: "20% - 40%", score: 70}
+          - {value: p_40_60, label: "40% - 60%", score: 35}
+          - {value: gt_60, label: "More than 60%", score: 0}
+
+      - id: C7
+        text: "How many months of normal expenditure could you cover from cash you are NOT investing?"
+        type: single
+        required: true
+        options:
+          - {value: m_0, label: "None", score: 0}
+          - {value: m_lt_3, label: "Less than 3 months", score: 25}
+          - {value: m_3_6, label: "3 - 6 months", score: 60}
+          - {value: m_6_12, label: "6 - 12 months", score: 85}
+          - {value: m_gt_12, label: "More than 12 months", score: 100}
+
+      - id: C8
+        text: "Do you expect to need any of the invested capital before the end of your stated horizon?"
+        type: single
+        required: true
+        regulatory_basis: ["ESMA GL2 para 24; GL3 para 37 - liquidity needs and holding period"]
+        options:
+          - {value: no_need, label: "No foreseeable need", score: 100}
+          - {value: small_late, label: "Possibly a small part (<25%), late in the horizon", score: 70}
+          - {value: large_late, label: "A large part (>25%), late in the horizon", score: 40}
+          - {value: small_early, label: "A small part (<25%) within the first two years", score: 30}
+          - {value: large_early, label: "A large part (>25%) within the first two years", score: 0}
+
+      - id: C9
+        text: "Outstanding debt other than a mortgage on your main residence."
+        type: single
+        required: true
+        options:
+          - {value: none, label: "None", score: 100}
+          - {value: modest, label: "Modest, comfortably serviced", score: 70}
+          - {value: significant, label: "Significant relative to income", score: 30}
+          - {value: distressed, label: "Difficult to service", score: 0}
+
+      - id: C10
+        text: "Are you borrowing, or using assets pledged as collateral, to fund this investment?"
+        type: boolean
+        required: true
+        help: "An affirmative answer is a hard stop for leveraged funding under this framework."
+
+      - id: C11
+        text: >-
+          A permanent loss of what proportion of this investment could you absorb
+          without changing your standard of living or abandoning the goal behind it?
+        type: single
+        required: true
+        help: "Presented to the client with the equivalent monetary amount computed from C4."
+        options:
+          - {value: l_0, label: "None - I need all of the capital back", score: 0, capacity_loss_pct: 0}
+          - {value: l_5, label: "Up to 5%", score: 20, capacity_loss_pct: 5}
+          - {value: l_15, label: "Up to 15%", score: 45, capacity_loss_pct: 15}
+          - {value: l_30, label: "Up to 30%", score: 70, capacity_loss_pct: 30}
+          - {value: l_50, label: "Up to 50%", score: 90, capacity_loss_pct: 50}
+          - {value: l_gt_50, label: "More than 50%", score: 100, capacity_loss_pct: 65}
+
+  # ---------------------------------------------------------------------------
+  # SECTION D - Investment objectives and horizon
+  # Art. 54(2)(a), 54(5) DR 2017/565
+  # ---------------------------------------------------------------------------
+  - id: D
+    name: Investment objectives and horizon
+    scored: true
+    dimension: objective
+    regulatory_basis:
+      - "DR 2017/565 Art. 54(2)(a); Art. 54(5) - length of time, purposes of the investment"
+      - "ESMA GL3 para 42 - multiple or long-term objectives require more detail"
+    questions:
+      - id: D1
+        text: "Primary purpose of this investment."
+        type: single
+        required: true
+        options:
+          - {value: preserve, label: "Protect the nominal value of the capital", objective_band: 1}
+          - {value: inflation, label: "Keep pace with inflation with very limited fluctuation", objective_band: 2}
+          - {value: income, label: "Generate a regular income stream", objective_band: 2}
+          - {value: balanced, label: "Balance growth and stability over the medium term", objective_band: 3}
+          - {value: growth, label: "Grow capital over the long term, accepting significant fluctuation", objective_band: 4}
+          - {value: max_growth, label: "Maximise long-term growth, accepting large losses along the way", objective_band: 5}
+
+      - id: D2
+        text: "For how long do you intend to hold this investment?"
+        type: single
+        required: true
+        regulatory_basis: ["DR 2017/565 Art. 54(5) - length of time"]
+        options:
+          - {value: h_lt_2, label: "Less than 2 years", horizon_years: 1, horizon_band: 1}
+          - {value: h_2_3, label: "2 to 3 years", horizon_years: 3, horizon_band: 2}
+          - {value: h_3_5, label: "3 to 5 years", horizon_years: 5, horizon_band: 2}
+          - {value: h_5_7, label: "5 to 7 years", horizon_years: 7, horizon_band: 3}
+          - {value: h_7_10, label: "7 to 10 years", horizon_years: 10, horizon_band: 4}
+          - {value: h_gt_10, label: "More than 10 years", horizon_years: 15, horizon_band: 5}
+
+      - id: D3
+        text: "Is the money tied to a specific future commitment?"
+        type: single
+        required: true
+        options:
+          - {value: none, label: "No specific commitment", score: 100}
+          - {value: flexible, label: "Yes, but the date is flexible", score: 70}
+          - {value: fixed_date, label: "Yes, on a fixed date (property purchase, education, retirement)", score: 30}
+
+      - id: D4
+        text: "Do you intend to draw regular withdrawals during the holding period?"
+        type: single
+        required: true
+        options:
+          - {value: none, label: "No withdrawals", score: 100}
+          - {value: lt_3, label: "Yes, up to 3% of the portfolio per year", score: 70}
+          - {value: p_3_5, label: "Yes, 3% - 5% per year", score: 45}
+          - {value: gt_5, label: "Yes, more than 5% per year", score: 10}
+
+      - id: D5
+        text: "Which return expectation is closest to yours for this portfolio, over the horizon you gave?"
+        type: single
+        required: true
+        help: >-
+          Used as a reality check against the risk level the client is willing to
+          accept. An expectation materially above what the accepted risk level can
+          plausibly deliver is a documented inconsistency (GL4 para 51).
+        options:
+          - {value: r_lt_2, label: "Around 1-2% a year", implied_band: 1}
+          - {value: r_2_4, label: "Around 2-4% a year", implied_band: 2}
+          - {value: r_4_6, label: "Around 4-6% a year", implied_band: 3}
+          - {value: r_6_9, label: "Around 6-9% a year", implied_band: 4}
+          - {value: r_gt_9, label: "More than 9% a year", implied_band: 5}
+
+      - id: D6
+        text: "Do you have other goals for other pools of money that this portfolio does not cover?"
+        type: boolean
+        required: true
+
+  # ---------------------------------------------------------------------------
+  # SECTION E - Risk tolerance (attitude to risk)
+  # Art. 25(2) MiFID II; Art. 54(2)(a) - "including the client's risk tolerance"
+  # ESMA GL4 para 48 - graphs, percentages and figures depicting value decreases
+  # ---------------------------------------------------------------------------
+  - id: E
+    name: Risk tolerance
+    scored: true
+    dimension: tolerance
+    regulatory_basis:
+      - "MiFID II Art. 25(2) - investment objectives including risk tolerance"
+      - "DR 2017/565 Art. 54(2)(a), 54(5) - preferences regarding risk taking"
+      - "ESMA GL4 paras 46, 48"
+    questions:
+      - id: E1
+        text: >-
+          Five portfolios of EUR 100,000 are shown with their plausible value after
+          one year in a good and in a bad year. Which would you choose?
+        type: single
+        required: true
+        display: outcome_table
+        options:
+          - {value: p1, label: "Best EUR 103,500 / Worst EUR 98,000", score: 0}
+          - {value: p2, label: "Best EUR 108,000 / Worst EUR 93,000", score: 25}
+          - {value: p3, label: "Best EUR 116,000 / Worst EUR 85,000", score: 50}
+          - {value: p4, label: "Best EUR 126,000 / Worst EUR 74,000", score: 75}
+          - {value: p5, label: "Best EUR 138,000 / Worst EUR 62,000", score: 100}
+
+      - id: E2
+        text: >-
+          Your portfolio falls 20% over three months, in line with a broad market
+          fall. What would you actually do?
+        type: single
+        required: true
+        options:
+          - {value: sell_all, label: "Sell everything and move to cash", score: 0}
+          - {value: sell_part, label: "Sell part of it to limit further loss", score: 25}
+          - {value: wait, label: "Do nothing and wait for recovery", score: 65}
+          - {value: hold_review, label: "Do nothing, but review whether my plan still holds", score: 75}
+          - {value: buy_more, label: "Invest more while prices are lower", score: 100}
+
+      - id: E3
+        text: "What is the largest fall in the value of this portfolio, over twelve months, that you would accept without changing your plan?"
+        type: single
+        required: true
+        options:
+          - {value: d_0, label: "No fall at all", score: 0, tolerance_loss_pct: 0}
+          - {value: d_5, label: "Up to 5%", score: 20, tolerance_loss_pct: 5}
+          - {value: d_10, label: "Up to 10%", score: 40, tolerance_loss_pct: 10}
+          - {value: d_20, label: "Up to 20%", score: 65, tolerance_loss_pct: 20}
+          - {value: d_35, label: "Up to 35%", score: 85, tolerance_loss_pct: 35}
+          - {value: d_gt_35, label: "More than 35%", score: 100, tolerance_loss_pct: 45}
+
+      - id: E4
+        text: "Have you previously held investments through a market fall of 20% or more (for example 2008, 2020 or 2022)?"
+        type: single
+        required: true
+        help: "Observed past behaviour is weighted more heavily than stated attitude (GL4 para 46)."
+        options:
+          - {value: never_invested, label: "I was not invested at the time", score: null, weight_override: 0}
+          - {value: sold, label: "Yes - I sold at a loss", score: 0}
+          - {value: reduced, label: "Yes - I reduced my exposure", score: 30}
+          - {value: held, label: "Yes - I held my position", score: 75}
+          - {value: added, label: "Yes - I added to my position", score: 100}
+
+      - id: E5
+        text: "Which statement is closest to your view?"
+        type: single
+        required: true
+        options:
+          - {value: s1, label: "Avoiding any loss matters more to me than growth", score: 0}
+          - {value: s2, label: "I want mainly stability, with a little growth", score: 25}
+          - {value: s3, label: "I accept moderate ups and downs for moderate growth", score: 50}
+          - {value: s4, label: "I accept substantial ups and downs for higher long-term growth", score: 75}
+          - {value: s5, label: "I am comfortable with large losses in pursuit of the highest return", score: 100}
+
+  # ---------------------------------------------------------------------------
+  # SECTION F - Sustainability preferences
+  # Art. 2(7) DR 2017/565 as inserted by DR (EU) 2021/1253
+  # ESMA GL2 paras 26-29; GL8 paras 81-85, 88
+  # NOTE: collected here, applied only after the Art. 25(2) assessment.
+  # ---------------------------------------------------------------------------
+  - id: F
+    name: Sustainability preferences
+    scored: false
+    applied_after_suitability: true
+    regulatory_basis:
+      - "DR 2017/565 Art. 2(7)(a)-(c); Art. 54(2)(a), 54(5), 54(9), 54(10)"
+      - "ESMA GL2 paras 26-29; GL8 paras 81-85, 88"
+    questions:
+      - id: F1
+        text: "Do you have sustainability preferences for this portfolio?"
+        type: single
+        required: true
+        help: >-
+          Explained to the client in non-technical terms before the question is put
+          (GL1 para 16). Answering "no" makes the client sustainability-neutral;
+          products with and without sustainability features may then be recommended
+          (GL8 para 85).
+        options:
+          - {value: "no", label: "No preference"}
+          - {value: "yes", label: "Yes"}
+          - {value: undecided, label: "Yes, but I do not know which aspects matter to me"}
+
+      - id: F2
+        text: "Which aspects should apply?"
+        type: multi
+        required: false
+        depends_on: {F1: ["yes", "undecided"]}
+        options:
+          - value: taxonomy
+            label: "A minimum proportion invested in environmentally sustainable activities under the Taxonomy Regulation"
+            aspect: "art_2_7_a"
+          - value: sfdr_sustainable
+            label: "A minimum proportion invested in sustainable investments under the SFDR"
+            aspect: "art_2_7_b"
+          - value: pai
+            label: "That principal adverse impacts on sustainability factors are considered"
+            aspect: "art_2_7_c"
+
+      - id: F3
+        text: "Minimum proportion for the aspects you selected."
+        type: single
+        required: false
+        depends_on: {F2: ["taxonomy", "sfdr_sustainable"]}
+        help: "Standardised minimum proportions are permitted (GL2 para 27)."
+        options:
+          - {value: p10, label: "At least 10%", min_proportion: 0.10}
+          - {value: p25, label: "At least 25%", min_proportion: 0.25}
+          - {value: p50, label: "At least 50%", min_proportion: 0.50}
+          - {value: p75, label: "At least 75%", min_proportion: 0.75}
+
+      - id: F4
+        text: "Which categories of adverse impact should be considered?"
+        type: multi
+        required: false
+        depends_on: {F2: ["pai"]}
+        help: "Categories rather than individual indicators may be used (GL2 para 27)."
+        options:
+          - {value: climate, label: "Climate and other environment-related impacts"}
+          - {value: social, label: "Social and employee matters"}
+          - {value: human_rights, label: "Respect for human rights"}
+          - {value: anti_corruption, label: "Anti-corruption and anti-bribery"}
+
+      - id: F5
+        text: "What share of this portfolio should meet your sustainability preferences?"
+        type: single
+        required: false
+        depends_on: {F1: ["yes", "undecided"]}
+        regulatory_basis: ["ESMA GL2 para 29; GL8 para 88"]
+        options:
+          - {value: s25, label: "At least 25% of the portfolio", portfolio_share: 0.25}
+          - {value: s50, label: "At least 50% of the portfolio", portfolio_share: 0.50}
+          - {value: s75, label: "At least 75% of the portfolio", portfolio_share: 0.75}
+          - {value: s100, label: "The whole portfolio", portfolio_share: 1.00}

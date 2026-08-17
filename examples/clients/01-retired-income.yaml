@@ -1,0 +1,53 @@
+# Persona 1 - retired, income-focused, modest knowledge.
+# Expected: capacity and objective bind; a low band; complexity gate limits the
+# universe to plain instruments.
+client_ref: EX-001
+adviser_ref: ADV-14
+assessed_at: "2026-03-02T09:30:00+00:00"
+answers:
+  A1: retail
+  A2: natural_person
+  A3: investment_advice
+  A4: 71
+  A5: retired
+  A6: partnered_no_dependants
+  A7: [near_retirement]
+
+  B0: basic
+  B1: general_secondary
+  B2: [deposits_mmf, govt_ig_bonds, ucits_funds]
+  B3: t_1_5
+  B4: v_5k_25k
+  B5: b        # correct
+  B6: a        # correct
+  B7: b        # correct
+  B8: d        # incorrect
+  B9: d        # incorrect
+  B10: b       # correct
+
+  C1: pension
+  C2: i_25_50k
+  C3: 260000
+  C4: 120000
+  C5: owned_outright
+  C6: lt_20
+  C7: m_6_12
+  C8: small_late
+  C9: none
+  C10: false
+  C11: l_15
+
+  D1: income
+  D2: h_5_7
+  D3: none
+  D4: lt_3
+  D5: r_2_4
+  D6: true
+
+  E1: p2
+  E2: wait
+  E3: d_10
+  E4: held
+  E5: s2
+
+  F1: "no"

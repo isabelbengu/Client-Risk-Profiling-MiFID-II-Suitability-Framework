@@ -1,0 +1,18 @@
+client            : EX-001
+status            : RECOMMENDED
+final risk band   : 2 (Conservative)
+binding constraint: objective
+knowledge gate    : complexity tier 2
+
+dimensions:
+  knowledge  score  51.0   band 3
+  capacity   score  69.0   band 4
+  objective  score -   band 2
+  tolerance  score  51.0   band 3
+  horizon    score -   band 3
+
+coherence controls triggered: none
+
+recommendation    : MP2-CORE - Conservative - Core
+  * Equivalent products at the same risk band and sustainability classification were compared on ongoing cost and complexity; the least costly was selected (Art. 54(9) DR 2017/565, ESMA GL9 paras 91-95).
+sustainability    : neutral - client is sustainability-neutral (GL8 para 85)

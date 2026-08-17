@@ -1,0 +1,19 @@
+client            : EX-006-JOINT
+status            : RECOMMENDED
+final risk band   : 2 (Conservative)
+binding constraint: objective
+knowledge gate    : complexity tier 1
+
+dimensions:
+  capacity   score  94.5   band 5
+  tolerance  score  29.5   band 2
+  horizon    score -   band 4
+  objective  score -   band 2
+  knowledge  score  36.1   band 2
+
+coherence controls triggered:
+  CC14 cap    Divergent profiles within a group - final bands across EX-006-A, EX-006-B range from 2 to 4
+
+recommendation    : MP2-CORE - Conservative - Core
+  * Equivalent products at the same risk band and sustainability classification were compared on ongoing cost and complexity; the least costly was selected (Art. 54(9) DR 2017/565, ESMA GL9 paras 91-95).
+sustainability    : neutral - client is sustainability-neutral (GL8 para 85)

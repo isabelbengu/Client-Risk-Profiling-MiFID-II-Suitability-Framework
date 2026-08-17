@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mifid-suitability-framework"
+version = "1.0.0"
+description = "Client risk-profiling questionnaire and suitability mapping to model portfolios, built to MiFID II and the ESMA suitability guidelines"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "Isabel Bengu"}]
+keywords = ["mifid-ii", "esma", "suitability", "risk-profiling", "compliance", "regtech"]
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+suitability = "suitability.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

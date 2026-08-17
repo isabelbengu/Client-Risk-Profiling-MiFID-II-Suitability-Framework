@@ -1,0 +1,26 @@
+client            : EX-005
+status            : REFERRED
+final risk band   : 1 (Capital preservation)
+binding constraint: capacity
+knowledge gate    : complexity tier 0
+
+dimensions:
+  knowledge  score  13.3   band 1
+  capacity   score  54.0   band 3
+  objective  score -   band 4
+  tolerance  score  92.1   band 5
+  horizon    score -   band 5
+
+coherence controls triggered:
+  CC01 cap    Knowledge over-estimation - self-rating 4/5 against 2/6 comprehension items correct
+  CC09 cap    Concentration in a single mandate - mandate is 90% of net financial assets; overlay caps capacity at band 3 (not binding on the assessed band)
+  CC02 refer  Low knowledge with high risk appetite - knowledge band 1 against risk tolerance band 5
+  CC03 refer  Tolerance materially exceeds capacity - risk tolerance band 5 exceeds capacity band 3 by 2
+  CC04 cap    Stated loss tolerance exceeds absorbable loss - stated loss tolerance 35% exceeds absorbable loss 30%
+  CC11 cap    Vulnerability overlay - vulnerability indicators: first_time_investor; the band 3 cap was not binding on the assessed band
+  CC07 refer  Return expectation not achievable at the accepted risk level - client expects a band 5 return from a band 3 portfolio
+
+recommendation    : MP1-CORE - Capital Preservation - Core
+  * Profile band 3 was reduced to 1 in product terms: knowledge gate tier 0 and a 15-year horizon rule out the higher band.
+  * Equivalent products at the same risk band and sustainability classification were compared on ongoing cost and complexity; the least costly was selected (Art. 54(9) DR 2017/565, ESMA GL9 paras 91-95).
+sustainability    : neutral - client is sustainability-neutral (GL8 para 85)

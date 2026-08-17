@@ -1,0 +1,18 @@
+client            : EX-002
+status            : RECOMMENDED
+final risk band   : 5 (Aggressive growth)
+binding constraint: capacity
+knowledge gate    : complexity tier 4
+
+dimensions:
+  knowledge  score  90.6   band 5
+  capacity   score  87.0   band 5
+  objective  score -   band 5
+  tolerance  score  97.0   band 5
+  horizon    score -   band 5
+
+coherence controls triggered: none
+
+recommendation    : MP5-CORE - Aggressive Growth - Core
+  * Equivalent products at the same risk band and sustainability classification were compared on ongoing cost and complexity; the least costly was selected (Art. 54(9) DR 2017/565, ESMA GL9 paras 91-95).
+sustainability    : neutral - client is sustainability-neutral (GL8 para 85)

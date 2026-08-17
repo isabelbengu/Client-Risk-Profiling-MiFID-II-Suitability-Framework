@@ -1,0 +1,57 @@
+# Persona 4 - balanced profile with explicit Art. 2(7) preferences.
+# Expected: the Art. 25(2) assessment runs first; the sustainability filter is
+# then applied to the range already found suitable.
+client_ref: EX-004
+adviser_ref: ADV-22
+assessed_at: "2026-03-04T11:20:00+00:00"
+answers:
+  A1: retail
+  A2: natural_person
+  A3: investment_advice_portfolio_approach
+  A4: 46
+  A5: employed_permanent
+  A6: dependants_1_2
+  A7: [none]
+
+  B0: good
+  B1: finance_studies
+  B2: [deposits_mmf, govt_ig_bonds, ucits_funds, listed_equities, etfs_index]
+  B3: t_6_20
+  B4: v_25k_100k
+  B5: b
+  B6: a
+  B7: b
+  B8: b
+  B9: b
+  B10: b
+
+  C1: stable_multi
+  C2: i_100_250k
+  C3: 400000
+  C4: 100000
+  C5: owned_mortgaged
+  C6: p_20_40
+  C7: m_6_12
+  C8: no_need
+  C9: none
+  C10: false
+  C11: l_30
+
+  D1: balanced
+  D2: h_7_10
+  D3: none
+  D4: none
+  D5: r_4_6
+  D6: true
+
+  E1: p3
+  E2: hold_review
+  E3: d_20
+  E4: held
+  E5: s3
+
+  F1: "yes"
+  F2: [sfdr_sustainable, pai]
+  F3: p50
+  F4: [climate, social]
+  F5: s100

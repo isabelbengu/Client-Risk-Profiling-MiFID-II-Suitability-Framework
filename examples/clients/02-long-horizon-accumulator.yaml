@@ -1,0 +1,52 @@
+# Persona 2 - experienced accumulator, long horizon, strong capacity.
+# Expected: a high band, no coherence controls, sustainability-neutral.
+client_ref: EX-002
+adviser_ref: ADV-14
+assessed_at: "2026-03-02T10:15:00+00:00"
+answers:
+  A1: retail
+  A2: natural_person
+  A3: portfolio_management
+  A4: 34
+  A5: employed_permanent
+  A6: partnered_no_dependants
+  A7: [none]
+
+  B0: good
+  B1: finance_studies
+  B2: [deposits_mmf, govt_ig_bonds, ucits_funds, listed_equities, etfs_index, hy_em_bonds]
+  B3: t_21_50
+  B4: v_25k_100k
+  B5: b
+  B6: a
+  B7: b
+  B8: b
+  B9: b
+  B10: b
+
+  C1: stable_multi
+  C2: i_100_250k
+  C3: 480000
+  C4: 150000
+  C5: owned_mortgaged
+  C6: p_20_40
+  C7: m_6_12
+  C8: no_need
+  C9: none
+  C10: false
+  C11: l_50
+
+  D1: max_growth
+  D2: h_gt_10
+  D3: none
+  D4: none
+  D5: r_6_9
+  D6: true
+
+  E1: p5
+  E2: buy_more
+  E3: d_35
+  E4: added
+  E5: s5
+
+  F1: "no"
